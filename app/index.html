@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Escape Game - Ecran admin</title>
+	<link rel="stylesheet" type"text/css" href="master.css">
+	<link rel="stylesheet" type"text/css" href="common.css">
+</head>
+<body>
+	<h1>Escape Game</h1>
+	<div class="row">
+		<div onclick="openSlave();" class="open">
+			<h2>Ouvrir la fenêtre joueur</h2>
+			<img src="open.png">
+		</div>
+		<div class="clock">
+			<h2>Temps</h2>
+			<p class="display"><span id="minutes">60</span> min <span id=seconds>00</span> sec</p>
+			<div class="controls">
+				<img src="play.png" onclick="launchChrono();">
+				<img src="pause.png" onclick="pauseChrono();">
+				<img src="reset.png" onclick="resetChrono();">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<h2>Envoyer un indice aux joueurs</h2>
+		<div class="currentClue">
+			<textarea id="currentClue" name="textarea"></textarea>
+			<img src="comment.png" onclick="sendClue();">
+		</div>
+	</div>
+	<div class="row">
+		<div class="previousClues">
+			<h2>Indices donnés précédemment</h2>
+			<div id="previousClues"></div>
+		</div>
+		<div class="savedClues">
+			<h2>Indices sauvegardés</h2>
+			<div id="savedClues"></div>
+		</div>
+	</div>
+</body>
+<script>
+var slave;
+var clock = {};
+var savedclues = [];
+
+//communication with other tab
+function openSlave(){
+	slave = window.open("slave.html");
+}
+function sendMessage(message){
+	if(slave){
+		slave.postMessage(message,"*");
+	}
+}
+
+//clock functions
+function displayClock(min,sec){
+document.getElementById("minutes").innerHTML = min;
+document.getElementById("seconds").innerHTML = sec;
+sendMessage({
+	name:"clock",
+	minutes: min,
+	seconds : sec
+});
+}
+function updateClock(){
+	var now=Date.now();
+	var duration = (clock.start-now+clock.duration)/1000;
+	var min =  Math.floor(duration / 60);
+	var sec = Math.floor(duration % 60);
+	if(min<0 || sec<0){
+		//Game over
+	}else if(clock.launch){
+		displayClock(min,sec);
+		setTimeout(function(){updateClock(clock);},1000);
+	}else{
+		clock.start = null;
+		clock.duration = duration*1000;
+	}
+	
+}
+function pauseChrono(){
+	clock.launch = false;
+}
+function launchChrono(){
+	if(!clock.duration){
+		clock.duration = 60*60*1000; // 60 min
+	}
+	if(!clock.start){
+		clock.start = Date.now();
+	}
+	clock.launch=true;
+	updateClock();
+}
+function resetChrono(){
+	clock.start = Date.now();
+	clock.duration = 60*60*1000; // 60 min
+	displayClock(60,0)
+}
+
+// clues functions
+function cluekeydown(e){
+	if(e.key==="Enter"){
+		sendClue();
+	}
+}
+//document.getElementById("currentClue").addEventListener("keyup", cluekeydown);
+
+function saveClues(){
+	var stringClues="";
+	savedclues.forEach(function(elem){
+		stringClues+= elem+"|";
+	});
+	if(stringClues.length>0){
+		stringClues= stringClues.slice(0,-1);
+	}
+	localStorage.setItem("savedclues",stringClues);
+	getSavedClues();
+}
+function saveClue(clue){
+	savedclues.push(clue);
+	saveClues();
+}
+function deleteClue(index) {
+	savedclues.splice(index,1);
+	saveClues();
+}
+function restoreClue(message){
+	document.getElementById("currentClue").value=message;
+}
+
+function getSavedClues(){
+	if(localStorage.getItem("savedclues")){
+		savedclues = localStorage.getItem("savedclues").split("|");
+	}
+	document.getElementById("savedClues").innerHTML="";
+	savedclues.forEach(function(elem, index){
+		var htmlClue = document.createElement("p");
+		var deleteicon = document.createElement("img");
+		deleteicon.src="delete.png";
+		deleteicon.setAttribute("onclick","deleteClue('"+index+"');");
+		var textClue = document.createElement("span");
+		textClue.setAttribute("onclick","restoreClue('"+elem+"');");
+		textClue.innerHTML = elem;
+		htmlClue.appendChild(deleteicon);
+		htmlClue.appendChild(textClue);
+		document.getElementById("savedClues").appendChild(htmlClue);
+	});
+}
+function sendClue(){
+	var clue = document.getElementById("currentClue").value;
+	if(clue && clue.length > 0){
+		sendMessage({name:"clue",message:clue});
+		var htmlClue = document.createElement("p");
+		var saveicon = document.createElement("img");
+		saveicon.src="save.png";
+		saveicon.setAttribute("onclick","saveClue('"+clue+"');");
+		var textClue = document.createElement("span");
+		textClue.innerHTML = clue;
+		textClue.setAttribute("onclick","restoreClue('"+clue+"');");
+		htmlClue.appendChild(saveicon);
+		htmlClue.appendChild(textClue);
+		document.getElementById("previousClues").appendChild(htmlClue);
+		document.getElementById("currentClue").value = "";
+	}
+}
+
+getSavedClues();
+</script>
+</html>

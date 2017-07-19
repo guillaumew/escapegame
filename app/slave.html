@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+	<title>Escape Game - Ecran joueurs</title>
+	<link rel="stylesheet" type"text/css" href="slave.css">
+	<link rel="stylesheet" type"text/css" href="common.css">
+</head>
+<body>
+	<div class="leftbanner"></div>
+	<div class="mainwindow">
+		<h1>Le secret de la dive bouteille</h1>
+		<div class="clue" id="clue">
+			<p id="currentClue"></p>
+		</div>
+		
+		<div id="clock" class="clock">
+			<h2>Temps restant :</h2>
+			<p class="display"><span id="minutes">60</span> min <span id=seconds>00</span> sec</p>
+		</div>
+	</div>
+	<div class="rightlogo"></div>
+	
+	
+	<audio id="start" src="start.mp3"></audio>
+	<audio id="bell" src="bell.ogg"></audio>
+	<audio id="fail" src="fail.ogg"></audio>
+	<audio id="ticktack" src="ticktack.ogg" loop="true"></audio>
+</body>
+<script>
+
+function updateClock(clock){
+	var ticktack = document.getElementById("ticktack");
+	document.getElementById("minutes").innerHTML = clock.minutes;
+	document.getElementById("seconds").innerHTML = clock.seconds;
+	if(clock.seconds==0 && clock.minutes==0){
+		document.getElementById("fail").play();
+		ticktack.pause();
+	}else if(clock.minutes==59 && clock.seconds==59){
+		document.getElementById("start").play();
+	}else if(clock.minutes<=0 && clock.seconds<=0){
+		ticktack.pause();
+	}else if(clock.minutes<3){
+		ticktack.play();
+	}else if(clock.seconds < 5 && clock.minutes%10==0 && clock.minutes!=60){
+		ticktack.play();
+	}else{
+		ticktack.pause();
+	}
+}
+
+var clueTimer;
+var clueAppeared;
+function updateClue(message){
+	document.getElementById("clock").style.bottom="95px";
+	window.clearTimeout(clueTimer);
+	window.clearTimeout(clueAppeared);
+	document.getElementById("currentClue").innerHTML = "<h2>Indice :</h2>" + message;
+	clueAppeared = setTimeout(function(){
+		document.getElementById("clue").style.opacity=1;
+	},500);
+	clueTimer = setTimeout(clearClue,20*1000);
+	var bell = document.getElementById("bell");
+	bell.currentTime=0;
+	bell.play();
+}
+function clearClue(){
+	document.getElementById("clock").style.bottom="50%";
+	document.getElementById("clue").style.opacity=0;
+	clueAppeared = setTimeout(function(){
+		document.getElementById("currentClue").innerHTML ="";
+	},500);
+}
+
+function receiveMessage(event){
+	switch (event.data.name){
+		case "clock":
+			updateClock(event.data);
+			break;
+		case "clue":
+			updateClue(event.data.message);
+	}
+}	
+window.addEventListener("message", receiveMessage, false);
+</script>
+</html>

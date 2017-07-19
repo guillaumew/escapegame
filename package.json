@@ -1,0 +1,21 @@
+{
+    "name": "Escape Game Comm",
+    "version": "0.0.1",
+    "engines": {
+        "node": "4.2.6"
+    },
+    "dependencies": {
+        "socket.io":"~1.4"
+    },
+    "scripts": {
+      "start": "node index.js"
+    },
+    "main": "index.js",
+    "author": "Guillaume W",
+    "description": "Un gestionnaire de Escape Game basique",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/guillaumew/escapegame"
+    },
+   "license": "MIT"
+}

@@ -1,0 +1,24 @@
+p{
+	margin:0;
+}
+h1{
+	text-align: center;
+}
+.row{
+	width: 100%;
+	text-align: center;
+}
+.clock{
+	text-align: center;
+	display: inline-block;
+}
+.clock .display {
+	font-size: 2em;
+	display: inline-block;
+	border:2px solid grey;;
+	padding:5px;
+	border-radius: 10px;
+}
+.clock .display span{
+	font-size: 2.5em;
+}

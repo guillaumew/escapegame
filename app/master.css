@@ -1,0 +1,37 @@
+img{
+	cursor: pointer;
+}
+.open{
+	display: inline-block;
+	text-align: center;
+	vertical-align: top;
+}
+.clock .controls{
+	margin: 5px;
+}
+.clock .controls img{
+	height:60px;
+}
+
+#currentClue{
+	height:100px;
+	width:40%;
+}
+.currentClue img{
+	height: 100px;
+}
+#previousClues, #savedClues{
+	text-align: left;
+}
+.previousClues, .savedClues{
+	display: inline-block;
+	margin-left: 10px;
+	margin-right: 10px;
+	vertical-align: top;
+}
+.previousClues img, .savedClues img{
+	height: 20px;
+    vertical-align: bottom;
+    position: relative;
+    left: -20px;
+}
