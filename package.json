@@ -1,11 +1,12 @@
 {
-    "name": "Escape Game Comm",
+    "name": "EscapeGame",
     "version": "0.0.1",
     "engines": {
         "node": "4.2.6"
     },
     "dependencies": {
-        "socket.io":"~1.4"
+        "socket.io":"~1.4",
+        "express": "^4.10.6"
     },
     "scripts": {
       "start": "node index.js"
